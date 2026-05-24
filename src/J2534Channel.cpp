@@ -1,5 +1,6 @@
 #include "j2534/J2534Channel.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <stdexcept>
 #include <thread>
@@ -166,9 +167,19 @@ namespace j2534 {
 
     void J2534Channel::readMsgs(const std::function<bool(const uint8_t* data, size_t length)> &func,
                                 unsigned long timeout) const {
+        // Keep timeout bounded across ignored frames, e.g. loopback or unrelated CAN traffic.
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout);
         while(true) {
+            const auto now = std::chrono::steady_clock::now();
+            if (now >= deadline) {
+                throw std::runtime_error("Failed to read data from CAN channel");
+            }
+            const auto remaining = static_cast<unsigned long>(
+                std::max<std::chrono::milliseconds::rep>(
+                    1,
+                    std::chrono::duration_cast<std::chrono::milliseconds>(deadline - now).count()));
             std::vector<PASSTHRU_MSG> msgs(1);
-            const auto readResult = readMsgs(msgs, timeout);
+            const auto readResult = readMsgs(msgs, remaining);
             if(readResult != STATUS_NOERROR || msgs.size() == 0) {
                 throw std::runtime_error("Failed to read data from CAN channel");
             }
