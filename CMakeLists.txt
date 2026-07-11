@@ -12,6 +12,7 @@ set(SOURCES
 
 set(HEADERS
   j2534/BaseMessage.hpp
+  j2534/DiCE.hpp
   j2534/J2534.hpp
   j2534/J2534Channel.hpp
   j2534/J2534_v0404.h

@@ -46,6 +46,8 @@ public:
                                           unsigned long &msgID) const;
   J2534_ERROR_CODE PassThruStopMsgFilter(unsigned long ChannelID,
                                          unsigned long MsgID) const;
+  /** DiCE does not support programming voltage and returns ERR_NOT_SUPPORTED.
+   */
   J2534_ERROR_CODE PassThruSetProgrammingVoltage(unsigned long Pin,
                                                  unsigned long Voltage) const;
   J2534_ERROR_CODE PassThruReadVersion(std::string &firmwareVersion,
@@ -55,6 +57,17 @@ public:
   J2534_ERROR_CODE PassThruIoctl(unsigned long ChannelID, unsigned long IoctlID,
                                  const void *input,
                                  void *output = nullptr) const;
+
+  /**
+   * Calls a device-level IOCTL using the device handle. DiCE device-level
+   * commands include READ_VBATT, TEST_*, GET_HW_VERSION, WARRANTY_CLOCK_GET,
+   * and ENABLE_BT; see the J2534.chm/TSDiCE32.h documentation.
+   */
+  J2534_ERROR_CODE PassThruIoctlOnDevice(unsigned long IoctlID,
+                                         const void *input,
+                                         void *output = nullptr) const;
+
+  J2534_ERROR_CODE readVBatt(unsigned long &millivolts) const;
 
 private:
   HINSTANCE _hDLL;

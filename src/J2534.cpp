@@ -172,4 +172,15 @@ J2534_ERROR_CODE J2534::PassThruIoctl(unsigned long ChannelID,
       _PassThruIoctl(ChannelID, IoctlID, const_cast<void *>(input), output));
 }
 
+J2534_ERROR_CODE J2534::PassThruIoctlOnDevice(unsigned long IoctlID,
+                                              const void *input,
+                                              void *output) const {
+  return static_cast<J2534_ERROR_CODE>(
+      _PassThruIoctl(_deviceId, IoctlID, const_cast<void *>(input), output));
+}
+
+J2534_ERROR_CODE J2534::readVBatt(unsigned long &millivolts) const {
+  return PassThruIoctlOnDevice(READ_VBATT, nullptr, &millivolts);
+}
+
 } // namespace j2534
