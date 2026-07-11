@@ -1,3 +1,2 @@
-mkdir build
-cd build
-cmake .. -A Win32
+@echo off
+cmake -S . -B build -A Win32

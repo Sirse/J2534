@@ -1,5 +1,7 @@
 #include "j2534/J2534.hpp"
 
+#include <cstring>
+#include <limits>
 #include <stdexcept>
 
 namespace j2534 {
@@ -41,8 +43,8 @@ J2534::~J2534() {
 }
 
 J2534_ERROR_CODE J2534::PassThruOpen(const std::string &name) {
-  const auto result = static_cast<J2534_ERROR_CODE>(
-      _PassThruOpen(const_cast<char *>(name.c_str()), &_deviceId));
+  const auto result = static_cast<J2534_ERROR_CODE>(_PassThruOpen(
+      name.empty() ? nullptr : const_cast<char *>(name.c_str()), &_deviceId));
   _deviceOpened = (result == STATUS_NOERROR);
   return result;
 }
@@ -68,6 +70,9 @@ J2534_ERROR_CODE J2534::PassThruDisconnect(unsigned long ChannelID) {
 J2534_ERROR_CODE J2534::PassThruReadMsgs(unsigned long ChannelID,
                                          std::vector<PASSTHRU_MSG> &msgs,
                                          unsigned long Timeout) const {
+  if (msgs.size() > std::numeric_limits<unsigned long>::max()) {
+    throw std::length_error("Too many PASSTHRU_MSG objects");
+  }
   unsigned long numMsgs{static_cast<unsigned long>(msgs.size())};
   const auto result = static_cast<J2534_ERROR_CODE>(
       _PassThruReadMsgs(ChannelID, msgs.data(), &numMsgs, Timeout));
@@ -76,7 +81,7 @@ J2534_ERROR_CODE J2534::PassThruReadMsgs(unsigned long ChannelID,
 }
 
 J2534_ERROR_CODE J2534::PassThruReadMsgs(unsigned long ChannelID,
-                                         PASSTHRU_MSG* msgs,
+                                         PASSTHRU_MSG *msgs,
                                          unsigned long &numMsgs,
                                          unsigned long Timeout) const {
   const auto result = static_cast<J2534_ERROR_CODE>(
@@ -88,7 +93,10 @@ J2534_ERROR_CODE J2534::PassThruWriteMsgs(unsigned long ChannelID,
                                           const std::vector<PASSTHRU_MSG> &msgs,
                                           unsigned long &numMsgs,
                                           unsigned long Timeout) const {
-  numMsgs = msgs.size();
+  if (msgs.size() > std::numeric_limits<unsigned long>::max()) {
+    throw std::length_error("Too many PASSTHRU_MSG objects");
+  }
+  numMsgs = static_cast<unsigned long>(msgs.size());
   return static_cast<J2534_ERROR_CODE>(_PassThruWriteMsgs(
       ChannelID, const_cast<PASSTHRU_MSG *>(msgs.data()), &numMsgs, Timeout));
 }
@@ -133,14 +141,16 @@ J2534::PassThruSetProgrammingVoltage(unsigned long Pin,
 J2534_ERROR_CODE J2534::PassThruReadVersion(std::string &firmwareVersion,
                                             std::string &dllVersion,
                                             std::string &apiVersion) const {
-  char *pFirmaweVersion = nullptr, *pDllVersion = nullptr,
-       *pApiVersion = nullptr;
-  const auto result = static_cast<J2534_ERROR_CODE>(_PassThruReadVersion(
-      _deviceId, pFirmaweVersion, pDllVersion, pApiVersion));
+  char firmware[80] = {}, dll[80] = {}, api[80] = {};
+  const auto result = static_cast<J2534_ERROR_CODE>(
+      _PassThruReadVersion(_deviceId, firmware, dll, api));
   if (result == STATUS_NOERROR) {
-    firmwareVersion = firmwareVersion;
-    dllVersion = pDllVersion;
-    apiVersion = pApiVersion;
+    firmware[sizeof(firmware) - 1] = '\0';
+    dll[sizeof(dll) - 1] = '\0';
+    api[sizeof(api) - 1] = '\0';
+    firmwareVersion = firmware;
+    dllVersion = dll;
+    apiVersion = api;
   }
   return result;
 }

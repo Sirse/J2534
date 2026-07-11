@@ -11,6 +11,11 @@ public:
   explicit J2534(const std::string &path);
   ~J2534();
 
+  J2534(const J2534 &) = delete;
+  J2534 &operator=(const J2534 &) = delete;
+  J2534(J2534 &&) = delete;
+  J2534 &operator=(J2534 &&) = delete;
+
   J2534_ERROR_CODE PassThruOpen(const std::string &name);
   J2534_ERROR_CODE PassThruClose();
   J2534_ERROR_CODE PassThruConnect(unsigned long ProtocolID,
@@ -20,8 +25,7 @@ public:
   J2534_ERROR_CODE PassThruReadMsgs(unsigned long ChannelID,
                                     std::vector<PASSTHRU_MSG> &msgs,
                                     unsigned long Timeout) const;
-  J2534_ERROR_CODE PassThruReadMsgs(unsigned long ChannelID,
-                                    PASSTHRU_MSG* msgs,
+  J2534_ERROR_CODE PassThruReadMsgs(unsigned long ChannelID, PASSTHRU_MSG *msgs,
                                     unsigned long &numMsgs,
                                     unsigned long Timeout) const;
   J2534_ERROR_CODE PassThruWriteMsgs(unsigned long ChannelID,
