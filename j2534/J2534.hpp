@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DiCE.hpp"
 #include "J2534_v0404.h"
 
 #include <string>
@@ -68,6 +69,8 @@ public:
                                          void *output = nullptr) const;
 
   J2534_ERROR_CODE readVBatt(unsigned long &millivolts) const;
+  J2534_ERROR_CODE getHwVersion(std::string &version) const;
+  J2534_ERROR_CODE getWarrantyClock(std::string &value) const;
 
 private:
   HINSTANCE _hDLL;

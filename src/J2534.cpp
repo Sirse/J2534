@@ -183,4 +183,26 @@ J2534_ERROR_CODE J2534::readVBatt(unsigned long &millivolts) const {
   return PassThruIoctlOnDevice(READ_VBATT, nullptr, &millivolts);
 }
 
+J2534_ERROR_CODE J2534::getHwVersion(std::string &version) const {
+  char buffer[80] = {};
+  const auto result =
+      PassThruIoctlOnDevice(dice::GET_HW_VERSION, nullptr, buffer);
+  if (result == STATUS_NOERROR) {
+    buffer[sizeof(buffer) - 1] = '\0';
+    version = buffer;
+  }
+  return result;
+}
+
+J2534_ERROR_CODE J2534::getWarrantyClock(std::string &value) const {
+  char buffer[80] = {};
+  const auto result =
+      PassThruIoctlOnDevice(dice::WARRANTY_CLOCK_GET, nullptr, buffer);
+  if (result == STATUS_NOERROR) {
+    buffer[sizeof(buffer) - 1] = '\0';
+    value = buffer;
+  }
+  return result;
+}
+
 } // namespace j2534
