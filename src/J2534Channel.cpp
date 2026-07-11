@@ -164,12 +164,20 @@ J2534_ERROR_CODE J2534Channel::writeMsg(const std::vector<uint8_t> &data,
 J2534_ERROR_CODE
 J2534Channel::startPeriodicMsg(const PASSTHRU_MSG &msg, unsigned long &msgID,
                                unsigned long TimeInterval) const {
+  if (TimeInterval < 5 || TimeInterval > 65535) {
+    throw std::invalid_argument(
+        "Periodic message interval must be 5..65535 ms");
+  }
   return _j2534.PassThruStartPeriodicMsg(_channelID, msg, msgID, TimeInterval);
 }
 
 std::vector<unsigned long>
 J2534Channel::startPeriodicMsgs(const BaseMessage &msg,
                                 unsigned long TimeInterval) const {
+  if (TimeInterval < 5 || TimeInterval > 65535) {
+    throw std::invalid_argument(
+        "Periodic message interval must be 5..65535 ms");
+  }
   std::vector<unsigned long> result;
   // Preserve the existing API contract: failures are omitted, so callers
   // may receive a partial list of successfully started message IDs.

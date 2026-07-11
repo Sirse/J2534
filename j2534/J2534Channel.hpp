@@ -9,6 +9,10 @@
 namespace j2534 {
 class J2534Channel final {
 public:
+  /**
+   * Opens a channel. DiCE does not deliver received data until a message
+   * filter has been installed with startMsgFilter.
+   */
   explicit J2534Channel(J2534 &j2534, unsigned long ProtocolID,
                         unsigned long Flags, unsigned long Baudrate,
                         unsigned long TxFlags);
@@ -32,13 +36,21 @@ public:
                              unsigned long DelayBetweenMessages = 0) const;
   J2534_ERROR_CODE writeMsg(const std::vector<uint8_t> &data,
                             unsigned long Timeout = 1000) const;
+  /** TimeInterval is 5..65535 ms; the message is one frame of at most 12 bytes.
+   */
   J2534_ERROR_CODE startPeriodicMsg(const PASSTHRU_MSG &msg,
                                     unsigned long &msgID,
                                     unsigned long TimeInterval) const;
+  /**
+   * Starts one periodic job per converted frame. TimeInterval must be 5..65535
+   * ms; each frame must be at most 12 bytes including the CAN ID. Failures are
+   * omitted from the returned list, so partial success is possible.
+   */
   std::vector<unsigned long>
   startPeriodicMsgs(const BaseMessage &msg, unsigned long TimeInterval) const;
   J2534_ERROR_CODE stopPeriodicMsg(unsigned long MsgID) const;
   void stopPeriodicMsg(const std::vector<unsigned long> &ids) const;
+  /** DiCE evaluates only the first 12 bytes; longer filter messages fail. */
   J2534_ERROR_CODE startMsgFilter(unsigned long FilterType,
                                   PASSTHRU_MSG *maskMsg,
                                   PASSTHRU_MSG *patternMsg,
