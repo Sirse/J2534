@@ -97,7 +97,7 @@ std::vector<PASSTHRU_MSG> toPassThruMsgs(const std::vector<uint8_t> &data,
 J2534Channel::J2534Channel(J2534 &j2534, unsigned long ProtocolID,
                            unsigned long Flags, unsigned long Baudrate,
                            unsigned long TxFlags)
-    : _j2534{j2534}, _protocolId(ProtocolID), _txFlags(TxFlags),
+    : _j2534{j2534}, _protocolId(ProtocolID), _flags(Flags), _txFlags(TxFlags),
       _baudrate(Baudrate) {
   const auto result =
       _j2534.PassThruConnect(ProtocolID, Flags, Baudrate, _channelID);
@@ -243,6 +243,8 @@ J2534Channel::setConfig(const std::vector<SCONFIG> &config) const {
 unsigned long J2534Channel::getProtocolId() const { return _protocolId; }
 
 unsigned long J2534Channel::getTxFlags() const { return _txFlags; }
+
+unsigned long J2534Channel::getFlags() const { return _flags; }
 
 unsigned long J2534Channel::getBaudrate() const { return _baudrate; }
 

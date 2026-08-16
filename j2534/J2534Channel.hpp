@@ -66,6 +66,7 @@ public:
 
   unsigned long getProtocolId() const;
   unsigned long getTxFlags() const;
+  unsigned long getFlags() const;
   unsigned long getBaudrate() const;
 
   /**
@@ -80,6 +81,7 @@ public:
 private:
   J2534 &_j2534;
   unsigned long _protocolId;
+  unsigned long _flags;
   unsigned long _txFlags;
   unsigned long _baudrate;
 
