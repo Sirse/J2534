@@ -11,8 +11,6 @@
 
 namespace j2534 {
 
-namespace {
-
 std::string j2534StatusToString(unsigned long status) {
   switch (status) {
   case STATUS_NOERROR:
@@ -91,8 +89,6 @@ std::vector<PASSTHRU_MSG> toPassThruMsgs(const std::vector<uint8_t> &data,
   memcpy(msg.Data, data.data(), data.size());
   return {msg};
 }
-
-} // namespace
 
 J2534Channel::J2534Channel(J2534 &j2534, unsigned long ProtocolID,
                            unsigned long Flags, unsigned long Baudrate,
@@ -258,7 +254,7 @@ void J2534Channel::readMsgs(
   while (true) {
     const auto now = std::chrono::steady_clock::now();
     if (now >= deadline) {
-      throw std::runtime_error("Timed out waiting for data from CAN channel");
+      throw J2534ReadTimeout("Timed out waiting for data from CAN channel");
     }
     const auto remaining =
         static_cast<unsigned long>(std::max<std::chrono::milliseconds::rep>(

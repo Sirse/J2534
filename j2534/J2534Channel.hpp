@@ -5,8 +5,22 @@
 #include "BaseMessage.hpp"
 
 #include <functional>
+#include <stdexcept>
+#include <string>
 
 namespace j2534 {
+
+// Human-readable name for a J2534 status/error code; defined in J2534Channel.cpp.
+std::string j2534StatusToString(unsigned long status);
+
+// Thrown by the callback readMsgs() when the read window expired without data. Callers
+// must branch on this type, not on the message text.
+class J2534ReadTimeout : public std::runtime_error {
+public:
+    explicit J2534ReadTimeout(const std::string& message)
+        : std::runtime_error{ message } {}
+};
+
 class J2534Channel final {
 public:
   /**
