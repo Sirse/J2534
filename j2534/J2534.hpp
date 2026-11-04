@@ -73,6 +73,7 @@ public:
   J2534_ERROR_CODE getWarrantyClock(std::string &value) const;
 
 private:
+  void LoadFunctions();
   HINSTANCE _hDLL;
   unsigned long _deviceId;
   bool _deviceOpened;

@@ -19,6 +19,16 @@ J2534::J2534(const std::string &path)
     throw std::runtime_error("Can't load library '" + path + "'");
   }
 
+  // The destructor does not run for a constructor that throws: unload here.
+  try {
+    LoadFunctions();
+  } catch (...) {
+    FreeLibrary(_hDLL);
+    throw;
+  }
+}
+
+void J2534::LoadFunctions() {
   LoadFunction(_hDLL, _PassThruOpen, "PassThruOpen");
   LoadFunction(_hDLL, _PassThruClose, "PassThruClose");
   LoadFunction(_hDLL, _PassThruConnect, "PassThruConnect");
